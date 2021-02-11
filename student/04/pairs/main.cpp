@@ -284,7 +284,7 @@ std::vector<std::string> split(const std::string& text, const char separator,
 
 //Reads the specified amount of player names.
 //Returns a vector player names as strings.
-std::vector<std::string> read_player_names(const int count)
+std::vector<std::string> read_player_names(const unsigned int count)
 {
 	std::string input = "";
 	std::cout << "List " << count << " players: ";
@@ -293,6 +293,73 @@ std::vector<std::string> read_player_names(const int count)
 	//assume player names are separated by spaces and
 	//that the correct amount of names was given
 	return split(input, ' ');
+}
+
+
+//Creates and returns players objects for the inputted names
+std::vector<Player> create_player_objects(const std::vector<std::string>& 
+	player_names)
+{
+	std::vector<Player> players;
+	for(std::string name : player_names)
+	{
+		players.push_back(Player(name));
+	}
+
+	return players;
+}
+
+//Checks if the input string consists or two valid game board coordinates.
+//Returns true for valid coordinates and false for invalid.
+bool are_valid_coordinates(const std::vector<std::string>& inputs,
+	const Game_board_type& g_board)
+{
+	if (inputs.empty())
+	{
+		return false;
+	}
+
+
+	//two coordinate pairs can only form from four numbers
+	//and disallow the two coordinate pairs being the same
+	if(inputs.size() != 4 || 
+		(inputs.at(0) == inputs.at(2) && inputs.at(1) == inputs.at(3)))
+	{
+		return false;
+	}
+
+	const unsigned int rows = g_board.size();
+	const unsigned int columns = g_board.at(0).size();
+	bool checking_x_coordinate = true;
+
+	for(const std::string& str_coord : inputs)
+	{
+		//attempt to parse an int from the string number
+		unsigned int coord = stoi_with_check(str_coord);
+
+		//above returns zero upon failure
+		//zero is also an invalid coordinate
+		if(!coord)
+		{
+			return false;
+		}
+
+		if(checking_x_coordinate && coord > columns)
+		{
+			return false;
+		}
+
+		if(!checking_x_coordinate && coord > rows)
+		{
+			return false;
+		}
+
+		//coordinates are in form 'x y x y' so can simply toggle between x and y
+		checking_x_coordinate = !checking_x_coordinate;
+	}
+
+	//if we got this far, all coordinates are fine
+	return true;
 }
 
 
@@ -315,7 +382,34 @@ int main()
 	const std::vector<std::string> player_names = read_player_names(
 		number_of_players);
 
-	print(game_board);
+	std::vector<Player> players = create_player_objects(player_names);
+
+	for(Player& player : players)
+	{
+		print(game_board);
+
+		for(;;)
+		{
+			std::cout << player.get_name() << ": " << INPUT_CARDS;
+			std::string line = "";
+			std::getline(std::cin, line);
+
+			//assume inputs are split by a space
+			std::vector<std::string> inputs = split(line, ' ');
+
+			//give up by entering q
+			if(!inputs.empty() && inputs.at(0) == "q")
+			{
+				std::cout << GIVING_UP << std::endl;
+				return EXIT_SUCCESS;
+			}
+
+			if(are_valid_coordinates(inputs, game_board))
+			{
+				break;
+			}
+		}
+	}
 
 	return EXIT_SUCCESS;
 }
