@@ -407,7 +407,6 @@ bool try_turn_cards(const std::vector<Card*>& cards,
 		const auto visibility = card->get_visibility();
 		if (visibility == EMPTY || visibility == OPEN)
 		{
-			std::cout << INVALID_CARD << std::endl;
 			return false;
 		}
 	}
@@ -492,7 +491,7 @@ void print_winner(const std::vector<Player>& players)
 	else
 	{
 		std::cout << "Tie of " << winners.size() << " players with "
-			<< winners.at(0).get_name() << " pairs.";
+			<< winners.at(0).number_of_pairs() << " pairs.";
 	}
 	
 }
@@ -590,6 +589,14 @@ void run_game(const std::vector<std::string>& player_names,
 							break;
 						}
 					}
+					else
+					{
+						std::cout << INVALID_CARD << std::endl;
+					}
+				}
+				else
+				{
+					std::cout << INVALID_CARD << std::endl;
 				}
 			}
 		}
