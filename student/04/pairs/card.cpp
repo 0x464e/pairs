@@ -61,7 +61,18 @@ void Card::turn()
 
 void Card::print() const
 {
-    // Write implementation here
+	switch (visibility_)
+	{
+		case OPEN:
+			std::cout << letter_;
+			break;
+		case HIDDEN:
+			std::cout << HIDDEN_CHAR;
+			break;
+		case EMPTY:
+			std::cout << EMPTY_CHAR;
+			break;
+	}
 }
 
 void Card::remove_from_game_board()

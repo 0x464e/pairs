@@ -73,7 +73,7 @@ unsigned int stoi_with_check(const std::string& str)
 }
 
 // Fills the game board, the size of which is rows * columns, with empty cards.
-void init_with_empties(Game_board_type& g_board, const unsigned int rows, 
+void init_with_empties(Game_board_type& g_board, const unsigned int rows,
 	const unsigned int columns)
 {
 	g_board.clear();
@@ -194,7 +194,7 @@ void print(const Game_board_type& g_board)
 
 // Asks the desired product from the user, and calculates the factors of
 // the product such that the factor as near to each other as possible.
-void ask_product_and_calculate_factors(unsigned int& smaller_factor, 
+void ask_product_and_calculate_factors(unsigned int& smaller_factor,
 	unsigned int& bigger_factor)
 {
 	unsigned int product = 0;
@@ -224,7 +224,7 @@ unsigned int ask_number_of_players()
 	unsigned int number_of_players = 0;
 
 	//loop until an integer larger than zero was input
-	for(;;)
+	for (;;)
 	{
 		std::string input = "";
 		std::cout << INPUT_AMOUNT_OF_PLAYERS;
@@ -240,7 +240,7 @@ unsigned int ask_number_of_players()
 
 //Splits text by the specified separator, optionally includes empty parts.
 //Returns a vector of the split parts.
-std::vector<std::string> split(const std::string& text, const char separator, 
+std::vector<std::string> split(const std::string& text, const char separator,
 	const bool include_empty = false)
 {
 	if (text.empty())
@@ -271,11 +271,11 @@ std::vector<std::string> split(const std::string& text, const char separator,
 	}
 
 	//also add in whatever was after the last separator
-	if(!part.empty())
+	if (!part.empty())
 	{
 		parts.push_back(part);
 	}
-	else if(include_empty)
+	else if (include_empty)
 	{
 		parts.push_back(part);
 	}
@@ -290,8 +290,8 @@ std::vector<std::string> read_player_names(const int count)
 	std::cout << "List " << count << " players: ";
 	std::getline(std::cin, input);
 
-	//player names are to be split by a space
-    //assume the correct amount of names was given
+	//assume player names are separated by spaces and
+	//that the correct amount of names was given
 	return split(input, ' ');
 }
 
@@ -314,6 +314,8 @@ int main()
 	const unsigned int number_of_players = ask_number_of_players();
 	const std::vector<std::string> player_names = read_player_names(
 		number_of_players);
+
+	print(game_board);
 
 	return EXIT_SUCCESS;
 }
