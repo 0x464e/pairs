@@ -36,6 +36,7 @@
 #include <iostream>
 #include <vector>
 #include <random>
+#include <algorithm>
 
 const std::string INPUT_AMOUNT_OF_CARDS = "Enter the amount of cards (an even number): ";
 const std::string INPUT_SEED = "Enter a seed value: ";
@@ -331,7 +332,7 @@ std::vector<unsigned int> str_vect_to_uint_vect(
 	return int_vector;
 }
 
-//Checks if the input string consists or two valid game board coordinates.
+//Checks if the input string consists of two valid game board coordinates.
 //Returns true for valid coordinates and false for invalid.
 bool are_valid_coordinates(const std::vector<unsigned int>& coordinates,
 	const Game_board_type& g_board)
@@ -406,6 +407,7 @@ bool try_turn_cards(const std::vector<Card*>& cards,
 		const auto visibility = card->get_visibility();
 		if (visibility == EMPTY || visibility == OPEN)
 		{
+			std::cout << INVALID_CARD << std::endl;
 			return false;
 		}
 	}
@@ -413,7 +415,9 @@ bool try_turn_cards(const std::vector<Card*>& cards,
 	//only turn cards if both can be turned
 	cards.at(0)->turn();
 	cards.at(1)->turn();
+	//print the board with the two cards open
 	print(g_board);
+	//hide the cards again
 	cards.at(0)->turn();
 	cards.at(1)->turn();
 	return true;
@@ -435,12 +439,99 @@ bool is_pair(const std::vector<Card*>& cards, Player& player)
 	return false;
 }
 
-//Prints out each player's score
-void players_scores_printout(const std::vector<Player>& players)
+//Compares players by their number of card pairs.
+//Used as a custom comparator for std::sort.
+bool compare_players(const Player& player1, const Player& player2)
 {
-	for(const auto& player : players)
+	return player1.number_of_pairs() > player2.number_of_pairs();
+}
+
+//Determines the winner of the game.
+//If it's a tie between two or more people, 
+//return all tie players in a vector.
+std::vector<Player> get_winner(std::vector<Player> players)
+{
+	//sort by descending
+	std::sort(players.begin(), players.end(), compare_players);
+
+	std::vector<Player> winners;
+
+	unsigned int previous_score = 0;
+
+	for (const auto& player : players)
+	{
+		const auto score = player.number_of_pairs();
+
+		//scores are sorted by descending, so once the current score
+		//is smaller than the previous score, we're done
+		if (score >= previous_score)
+		{
+			previous_score = score;
+			winners.push_back(player);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return winners;
+}
+
+void print_winner(const std::vector<Player>& players)
+{
+	const auto winners = get_winner(players);
+
+	std::cout << GAME_OVER << std::endl;
+	if (winners.size() == 1)
+	{
+		const auto& winner = winners.at(0);
+		std::cout << winner.get_name() << " has won with "
+			<< winner.number_of_pairs() << " pairs." << std::endl;
+	}
+	else
+	{
+		std::cout << "Tie of " << winners.size() << " players with "
+			<< winners.at(0).get_name() << " pairs.";
+	}
+	
+}
+
+//Checks whether the game has ended (if all game field cards are empty)
+//
+bool is_game_over(const Game_board_type& g_board)
+{
+	//loop through all cards, if even one is non-empty, the game isn't over
+	for (const auto& row : g_board)
+	{
+		for (const auto& card : row)
+		{
+			if (card.get_visibility() != EMPTY)
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+void print_outs(const Game_board_type& g_board,
+	const std::vector<Player>& players, 
+	const bool found_pair, const bool game_has_ended)
+{
+	//print whether a pair was found or not
+	std::cout << (found_pair ? FOUND : NOT_FOUND) << std::endl;
+	//print each player's score
+	for (const auto& player : players)
 	{
 		player.print();
+	}
+	//print the game board of hidden or empty cards
+	print(g_board);
+
+	if (game_has_ended)
+	{
+		print_winner(players);
 	}
 }
 
@@ -449,7 +540,9 @@ void run_game(const std::vector<std::string>& player_names,
 	Game_board_type& g_board)
 {
 	auto players = create_player_objects(player_names);
-	auto found_paid = false;
+	auto found_pair = false;
+
+	print(g_board);
 
 	//loop all players until game ends
 	for(;;)
@@ -457,9 +550,6 @@ void run_game(const std::vector<std::string>& player_names,
 		//go through each player
 		for (auto& player : players)
 		{
-			found_paid = false;
-			print(g_board);
-
 			//loop until valid coordinates, where a card can
 			//successful be turned, are given
 			for (;;)
@@ -485,14 +575,23 @@ void run_game(const std::vector<std::string>& player_names,
 					const auto cards = coords_to_card_ptrs(coordinates, g_board);
 					if(try_turn_cards(cards, g_board))
 					{
-						found_paid = is_pair(cards, player);
-						break;
+						found_pair = is_pair(cards, player);
+						const auto game_has_ended = is_game_over(g_board);
+						print_outs(g_board, players, found_pair, game_has_ended);
+
+						//exit after printouts if game has ended
+						if(game_has_ended)
+						{
+							return;
+						}
+						//jump to the next player only if a pair wasn't found
+						if(!found_pair)
+						{
+							break;
+						}
 					}
 				}
 			}
-
-			std::cout << "Pairs" << (found_paid ? "" : " not") << " found." << std::endl;
-			players_scores_printout(players);
 		}
 	}
 }
