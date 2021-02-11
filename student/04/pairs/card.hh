@@ -28,8 +28,8 @@ public:
     Card(char c);
 
     // Obvious setter and getter methods.
-    void set_letter(const char c);
-    void set_visibility(const Visibility_type visibility);
+    void set_letter(char c);
+    void set_visibility(Visibility_type visibility);
     char get_letter() const;
     Visibility_type get_visibility() const;
 

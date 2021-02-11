@@ -406,6 +406,7 @@ int main()
 
 			if(are_valid_coordinates(inputs, game_board))
 			{
+
 				break;
 			}
 		}
