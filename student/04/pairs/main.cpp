@@ -73,7 +73,8 @@ unsigned int stoi_with_check(const std::string& str)
 }
 
 // Fills the game board, the size of which is rows * columns, with empty cards.
-void init_with_empties(Game_board_type& g_board, const unsigned int rows, const unsigned int columns)
+void init_with_empties(Game_board_type& g_board, const unsigned int rows, 
+	const unsigned int columns)
 {
 	g_board.clear();
 	Game_row_type row;
@@ -100,7 +101,8 @@ unsigned int next_free(Game_board_type& g_board, const unsigned int start)
 	// Starting from the given value
 	for (unsigned int i = start; i < rows * columns; ++i)
 	{
-		if (g_board.at(i / columns).at(i % columns).get_visibility() == EMPTY) // vaihdettu
+		// vaihdettu
+		if (g_board.at(i / columns).at(i % columns).get_visibility() == EMPTY)
 		{
 			return i;
 		}
@@ -157,9 +159,9 @@ void print_line_with_char(const char c, const unsigned int line_length)
 {
 	for (unsigned int i = 0; i < line_length * 2 + 7; ++i)
 	{
-        std::cout << c;
+		std::cout << c;
 	}
-    std::cout << std::endl;
+	std::cout << std::endl;
 }
 
 // Prints a variable-length game board with borders.
@@ -170,35 +172,36 @@ void print(const Game_board_type& g_board)
 	const unsigned int columns = g_board.at(0).size();
 
 	print_line_with_char('=', columns);
-    std::cout << "|   | ";
+	std::cout << "|   | ";
 	for (unsigned int i = 0; i < columns; ++i)
 	{
-        std::cout << i + 1 << " ";
+		std::cout << i + 1 << " ";
 	}
-    std::cout << "|" << std::endl;
+	std::cout << "|" << std::endl;
 	print_line_with_char('-', columns);
 	for (unsigned int i = 0; i < rows; ++i)
 	{
-        std::cout << "| " << i + 1 << " | ";
+		std::cout << "| " << i + 1 << " | ";
 		for (unsigned int j = 0; j < columns; ++j)
 		{
 			g_board.at(i).at(j).print();
-            std::cout << " ";
+			std::cout << " ";
 		}
-        std::cout << "|" << std::endl;
+		std::cout << "|" << std::endl;
 	}
 	print_line_with_char('=', columns);
 }
 
 // Asks the desired product from the user, and calculates the factors of
 // the product such that the factor as near to each other as possible.
-void ask_product_and_calculate_factors(unsigned int& smaller_factor, unsigned int& bigger_factor)
+void ask_product_and_calculate_factors(unsigned int& smaller_factor, 
+	unsigned int& bigger_factor)
 {
 	unsigned int product = 0;
 	while (!(product > 0 && product % 2 == 0))
 	{
 		std::cout << INPUT_AMOUNT_OF_CARDS;
-        std::string product_str = "";
+		std::string product_str = "";
 		std::getline(std::cin, product_str);
 		product = stoi_with_check(product_str);
 	}
@@ -213,7 +216,84 @@ void ask_product_and_calculate_factors(unsigned int& smaller_factor, unsigned in
 	bigger_factor = product / smaller_factor;
 }
 
-// More functions
+
+//Asks the user to input a valid number of players (an integer larger than 0).
+//Returns a valid player count as an uint.
+unsigned int ask_number_of_players()
+{
+	unsigned int number_of_players = 0;
+
+	//loop until an integer larger than zero was input
+	for(;;)
+	{
+		std::string input = "";
+		std::cout << INPUT_AMOUNT_OF_PLAYERS;
+		getline(std::cin, input);
+		number_of_players = stoi_with_check(input); //returns 0 for fail
+
+		if (number_of_players) //if non-zero
+		{
+			return number_of_players;
+		}
+	}
+}
+
+//Splits text by the specified separator, optionally includes empty parts.
+//Returns a vector of the split parts.
+std::vector<std::string> split(const std::string& text, const char separator, 
+	const bool include_empty = false)
+{
+	if (text.empty())
+	{
+		return std::vector<std::string> {""};
+	}
+
+	std::vector<std::string> parts;
+	std::string part = "";
+
+	for (char c : text)
+	{
+		if (c == separator)
+		{
+			//include empty parts only if asked for
+			if (!part.empty())
+			{
+				parts.push_back(part);
+			}
+			else if (include_empty)
+			{
+				parts.push_back(part);
+			}
+			part = "";
+			continue;
+		}
+		part += c;
+	}
+
+	//also add in whatever was after the last separator
+	if(!part.empty())
+	{
+		parts.push_back(part);
+	}
+	else if(include_empty)
+	{
+		parts.push_back(part);
+	}
+	return parts;
+}
+
+//Reads the specified amount of player names.
+//Returns a vector player names as strings.
+std::vector<std::string> read_player_names(const int count)
+{
+	std::string input = "";
+	std::cout << "List " << count << " players: ";
+	std::getline(std::cin, input);
+
+	//player names are to be split by a space
+    //assume the correct amount of names was given
+	return split(input, ' ');
+}
 
 
 int main()
@@ -225,13 +305,15 @@ int main()
 	ask_product_and_calculate_factors(factor1, factor2);
 	init_with_empties(game_board, factor1, factor2);
 
-    std::string seed_str = "";
+	std::string seed_str = "";
 	std::cout << INPUT_SEED;
 	std::getline(std::cin, seed_str);
 	const int seed = stoi_with_check(seed_str);
 	init_with_cards(game_board, seed);
 
-	// More code
+	const unsigned int number_of_players = ask_number_of_players();
+	const std::vector<std::string> player_names = read_player_names(
+		number_of_players);
 
 	return EXIT_SUCCESS;
 }

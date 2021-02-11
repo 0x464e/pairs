@@ -10,19 +10,19 @@
 
 #include "player.hh"
 
-Player::Player(const std::string& name)
+Player::Player(const std::string& name) :
+	name_(name), number_of_pairs_(0)
 {
-
 }
 
 std::string Player::get_name() const
 {
-	return "";
+	return name_;
 }
 
 unsigned int Player::number_of_pairs() const
 {
-	return 0;
+	return number_of_pairs_;
 }
 
 void Player::add_card(Card& card)

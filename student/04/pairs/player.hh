@@ -38,7 +38,8 @@ public:
     void print() const;
 
 private:
-    // Add necessary attributes here
+	std::string name_;
+	unsigned int number_of_pairs_;
 };
 
 #endif // PLAYER_HH
