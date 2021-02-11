@@ -56,8 +56,8 @@ using Game_board_type = std::vector<std::vector<Card>>;
 // (which leads to an invalid card later).
 unsigned int stoi_with_check(const std::string& str)
 {
-	bool is_numeric = true;
-	for (char i : str)
+	auto is_numeric = true;
+	for (auto i : str)
 	{
 		if (!isdigit(i))
 		{
@@ -95,11 +95,11 @@ void init_with_empties(Game_board_type& g_board, const unsigned int rows,
 unsigned int next_free(Game_board_type& g_board, const unsigned int start)
 {
 	// Finding out the number of rows and columns of the game board
-	const unsigned int rows = g_board.size();
-	const unsigned int columns = g_board.at(0).size();
+	const auto rows = g_board.size();
+	const auto columns = g_board.at(0).size();
 
 	// Starting from the given value
-	for (unsigned int i = start; i < rows * columns; ++i)
+	for (auto i = start; i < rows * columns; ++i)
 	{
 		// vaihdettu
 		if (g_board.at(i / columns).at(i % columns).get_visibility() == EMPTY)
@@ -127,8 +127,8 @@ unsigned int next_free(Game_board_type& g_board, const unsigned int start)
 void init_with_cards(Game_board_type& g_board, const int seed)
 {
 	// Finding out the number of rows and columns of the game board
-	const unsigned int rows = g_board.size();
-	const unsigned int columns = g_board.at(0).size();
+	const auto rows = g_board.size();
+	const auto columns = g_board.at(0).size();
 
 	// Drawing a cell to be filled
 	std::default_random_engine randomEng(seed);
@@ -168,8 +168,8 @@ void print_line_with_char(const char c, const unsigned int line_length)
 void print(const Game_board_type& g_board)
 {
 	// Finding out the number of rows and columns of the game board
-	const unsigned int rows = g_board.size();
-	const unsigned int columns = g_board.at(0).size();
+	const auto rows = g_board.size();
+	const auto columns = g_board.at(0).size();
 
 	print_line_with_char('=', columns);
 	std::cout << "|   | ";
@@ -251,7 +251,7 @@ std::vector<std::string> split(const std::string& text, const char separator,
 	std::vector<std::string> parts;
 	std::string part = "";
 
-	for (char c : text)
+	for (auto c : text)
 	{
 		if (c == separator)
 		{
@@ -301,7 +301,7 @@ std::vector<Player> create_player_objects(const std::vector<std::string>&
 	player_names)
 {
 	std::vector<Player> players;
-	for(std::string name : player_names)
+	for(const auto name : player_names)
 	{
 		players.push_back(Player(name));
 	}
@@ -328,14 +328,14 @@ bool are_valid_coordinates(const std::vector<std::string>& inputs,
 		return false;
 	}
 
-	const unsigned int rows = g_board.size();
-	const unsigned int columns = g_board.at(0).size();
-	bool checking_x_coordinate = true;
+	const auto rows = g_board.size();
+	const auto columns = g_board.at(0).size();
+	auto checking_x_coordinate = true;
 
-	for(const std::string& str_coord : inputs)
+	for(const auto& str_coord : inputs)
 	{
 		//attempt to parse an int from the string number
-		unsigned int coord = stoi_with_check(str_coord);
+		const auto coord = stoi_with_check(str_coord);
 
 		//above returns zero upon failure
 		//zero is also an invalid coordinate
@@ -362,6 +362,40 @@ bool are_valid_coordinates(const std::vector<std::string>& inputs,
 	return true;
 }
 
+//Runs the actual game
+void run_game(const std::vector<std::string> player_names, 
+	const Game_board_type& g_board)
+{
+	auto players = create_player_objects(player_names);
+
+	for (auto& player : players)
+	{
+		print(g_board);
+
+		for (;;)
+		{
+			std::cout << player.get_name() << ": " << INPUT_CARDS;
+			std::string line = "";
+			std::getline(std::cin, line);
+
+			//assume inputs are split by a space
+			auto inputs = split(line, ' ');
+
+			//give up by entering q
+			if (!inputs.empty() && inputs.at(0) == "q")
+			{
+				std::cout << GIVING_UP << std::endl;
+				return;
+			}
+
+			if (are_valid_coordinates(inputs, g_board))
+			{
+
+				break;
+			}
+		}
+	}
+}
 
 int main()
 {
@@ -378,39 +412,10 @@ int main()
 	const int seed = stoi_with_check(seed_str);
 	init_with_cards(game_board, seed);
 
-	const unsigned int number_of_players = ask_number_of_players();
-	const std::vector<std::string> player_names = read_player_names(
-		number_of_players);
+	const auto number_of_players = ask_number_of_players();
+	const auto player_names = read_player_names(number_of_players);
 
-	std::vector<Player> players = create_player_objects(player_names);
-
-	for(Player& player : players)
-	{
-		print(game_board);
-
-		for(;;)
-		{
-			std::cout << player.get_name() << ": " << INPUT_CARDS;
-			std::string line = "";
-			std::getline(std::cin, line);
-
-			//assume inputs are split by a space
-			std::vector<std::string> inputs = split(line, ' ');
-
-			//give up by entering q
-			if(!inputs.empty() && inputs.at(0) == "q")
-			{
-				std::cout << GIVING_UP << std::endl;
-				return EXIT_SUCCESS;
-			}
-
-			if(are_valid_coordinates(inputs, game_board))
-			{
-
-				break;
-			}
-		}
-	}
+	run_game(player_names, game_board);
 
 	return EXIT_SUCCESS;
 }
