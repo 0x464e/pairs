@@ -37,26 +37,24 @@
 #include <vector>
 #include <random>
 
-using namespace std;
+const std::string INPUT_AMOUNT_OF_CARDS = "Enter the amount of cards (an even number): ";
+const std::string INPUT_SEED = "Enter a seed value: ";
+const std::string INPUT_AMOUNT_OF_PLAYERS = "Enter the amount of players (one or more): ";
+const std::string INPUT_CARDS = "Enter two cards (x1, y1, x2, y2), or q to quit: ";
+const std::string INVALID_CARD = "Invalid card.";
+const std::string FOUND = "Pairs found.";
+const std::string NOT_FOUND = "Pairs not found.";
+const std::string GIVING_UP = "Why on earth you are giving up the game?";
+const std::string GAME_OVER = "Game over!";
 
-const string INPUT_AMOUNT_OF_CARDS = "Enter the amount of cards (an even number): ";
-const string INPUT_SEED = "Enter a seed value: ";
-const string INPUT_AMOUNT_OF_PLAYERS = "Enter the amount of players (one or more): ";
-const string INPUT_CARDS = "Enter two cards (x1, y1, x2, y2), or q to quit: ";
-const string INVALID_CARD = "Invalid card.";
-const string FOUND = "Pairs found.";
-const string NOT_FOUND = "Pairs not found.";
-const string GIVING_UP = "Why on earth you are giving up the game?";
-const string GAME_OVER = "Game over!";
-
-using Game_row_type = vector<Card>;
-using Game_board_type = vector<vector<Card>>;
+using Game_row_type = std::vector<Card>;
+using Game_board_type = std::vector<std::vector<Card>>;
 
 // Converts the given numeric string to the corresponding integer
 // (by calling stoi).
 // If the given string is not numeric, returns 0
 // (which leads to an invalid card later).
-unsigned int stoi_with_check(const string& str)
+unsigned int stoi_with_check(const std::string& str)
 {
 	bool is_numeric = true;
 	for (char i : str)
@@ -159,9 +157,9 @@ void print_line_with_char(const char c, const unsigned int line_length)
 {
 	for (unsigned int i = 0; i < line_length * 2 + 7; ++i)
 	{
-		cout << c;
+        std::cout << c;
 	}
-	cout << endl;
+    std::cout << std::endl;
 }
 
 // Prints a variable-length game board with borders.
@@ -172,22 +170,22 @@ void print(const Game_board_type& g_board)
 	const unsigned int columns = g_board.at(0).size();
 
 	print_line_with_char('=', columns);
-	cout << "|   | ";
+    std::cout << "|   | ";
 	for (unsigned int i = 0; i < columns; ++i)
 	{
-		cout << i + 1 << " ";
+        std::cout << i + 1 << " ";
 	}
-	cout << "|" << endl;
+    std::cout << "|" << std::endl;
 	print_line_with_char('-', columns);
 	for (unsigned int i = 0; i < rows; ++i)
 	{
-		cout << "| " << i + 1 << " | ";
+        std::cout << "| " << i + 1 << " | ";
 		for (unsigned int j = 0; j < columns; ++j)
 		{
 			g_board.at(i).at(j).print();
-			cout << " ";
+            std::cout << " ";
 		}
-		cout << "|" << endl;
+        std::cout << "|" << std::endl;
 	}
 	print_line_with_char('=', columns);
 }
@@ -200,7 +198,7 @@ void ask_product_and_calculate_factors(unsigned int& smaller_factor, unsigned in
 	while (!(product > 0 && product % 2 == 0))
 	{
 		std::cout << INPUT_AMOUNT_OF_CARDS;
-		string product_str = "";
+        std::string product_str = "";
 		std::getline(std::cin, product_str);
 		product = stoi_with_check(product_str);
 	}
@@ -227,7 +225,7 @@ int main()
 	ask_product_and_calculate_factors(factor1, factor2);
 	init_with_empties(game_board, factor1, factor2);
 
-	string seed_str = "";
+    std::string seed_str = "";
 	std::cout << INPUT_SEED;
 	std::getline(std::cin, seed_str);
 	const int seed = stoi_with_check(seed_str);
