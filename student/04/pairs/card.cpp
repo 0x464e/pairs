@@ -79,3 +79,4 @@ void Card::remove_from_game_board()
 {
     visibility_ = EMPTY;
 }
+

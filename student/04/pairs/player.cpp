@@ -12,7 +12,7 @@
 #include <iostream>
 
 Player::Player(const std::string& name) :
-	name_(name), number_of_pairs_(0)
+	name_(name), collected_cards_(0)
 {
 }
 
@@ -23,23 +23,23 @@ std::string Player::get_name() const
 
 unsigned int Player::number_of_pairs() const
 {
-	return number_of_pairs_;
+	return collected_cards_ / 2;
 }
 
-void Player::add_card(Card& card)
+void Player::add_card(Card* card)
 {
 	//don't operate on an already removed card
-	if (card.get_visibility() == EMPTY)
+	if (card->get_visibility() == EMPTY)
 	{
 		return;
 	}
 
-	card.remove_from_game_board();
-	number_of_pairs_++;
+	card->remove_from_game_board();
+	collected_cards_++;
 }
 
 void Player::print() const
 {
 	std::cout << "*** " << name_ << " has "
-		<< number_of_pairs_ << " pair(s)." << std::endl;
+		<< collected_cards_ / 2 << " pair(s)." << std::endl;
 }

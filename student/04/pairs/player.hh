@@ -32,14 +32,17 @@ public:
     // Moves the given card from the game board for the player,
     // i.e. inserts it to the collected cards of the player and
     // removes it from the game board.
-    void add_card(Card& card);
+    void add_card(Card* card);
 
     // Prints the game status of the player: name and collected pairs so far.
     void print() const;
 
 private:
+	//Player's name
 	std::string name_;
-	unsigned int number_of_pairs_;
+
+	//Amount of cards player has collected
+	unsigned int collected_cards_;
 };
 
 #endif // PLAYER_HH
