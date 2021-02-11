@@ -1,7 +1,36 @@
+/*
+ * COMP.CS.110 K2021
+ *
+ * Program author
+ * Name: 
+ * Student number: 
+ * UserID: 
+ * E-Mail: 
+ */
+
 #include "player.hh"
 
-// Lisää luokan toteutus tähän.
-// Kuhunkin julkiseen metodiin pitäisi riittää 1-2 koodiriviä.
+Player::Player(const std::string& name)
+{
 
-// Add class implementation here.
-// It should be enough to write only 1-2 code lines in each public method.
+}
+
+std::string Player::get_name() const
+{
+	return "";
+}
+
+unsigned int Player::number_of_pairs() const
+{
+	return 0;
+}
+
+void Player::add_card(Card& card)
+{
+
+}
+
+void Player::print() const
+{
+
+}

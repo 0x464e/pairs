@@ -1,3 +1,13 @@
+/*
+ * COMP.CS.110 K2021
+ * 
+ * Program author
+ * Name: 
+ * Student number: 
+ * UserID: 
+ * E-Mail: 
+ */
+
 #include "card.hh"
 #include <iostream>
 
@@ -51,7 +61,6 @@ void Card::turn()
 
 void Card::print() const
 {
-    // Kirjoita toteutus tähän
     // Write implementation here
 }
 
