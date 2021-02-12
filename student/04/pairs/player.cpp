@@ -23,6 +23,8 @@ std::string Player::get_name() const
 
 unsigned int Player::number_of_pairs() const
 {
+	//cards can only be collected in batches of two
+	//so the division is guaranteed to 
 	return collected_cards_ / 2;
 }
 

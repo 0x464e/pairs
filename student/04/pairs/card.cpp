@@ -20,7 +20,6 @@ Card::Card():
 Card::Card(const char c):
     letter_(c), visibility_(HIDDEN)
 {
-
 }
 
 void Card::set_letter(const char c)

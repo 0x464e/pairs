@@ -28,7 +28,14 @@
  * E-Mail: 
  *
  * Notes about the program and it's implementation:
- * TBD
+ * Tried to practice good usage of constants and references.
+ * In parameters references are used on types with sizeof() > sizeof(ptr).
+ * Sudden usage of pointers for Card objects may seem like a weird design
+ * choice, but I wanted to get some practice with pointers as well.
+ * 
+ * run_game function may have grown a bit long, but breaking it up to even
+ * more functions would've made it less clear in my opinion. Anyway, its
+ * length mostly comes from spacing and mandatory braces.
  * */
 
 #include "player.hh"
@@ -41,6 +48,7 @@
 const std::string INPUT_AMOUNT_OF_CARDS = "Enter the amount of cards (an even number): ";
 const std::string INPUT_SEED = "Enter a seed value: ";
 const std::string INPUT_AMOUNT_OF_PLAYERS = "Enter the amount of players (one or more): ";
+const std::string INVALID_AMOUNT_OF_PLAYERS = "Invalid amount of players.";
 const std::string INPUT_CARDS = "Enter two cards (x1, y1, x2, y2), or q to quit: ";
 const std::string INVALID_CARD = "Invalid card.";
 const std::string FOUND = "Pairs found.";
@@ -58,7 +66,7 @@ using Game_board_type = std::vector<std::vector<Card>>;
 unsigned int stoi_with_check(const std::string& str)
 {
 	//fix crashing on empty input
-	if(str.empty())
+	if (str.empty())
 	{
 		return 0;
 	}
@@ -141,7 +149,8 @@ void init_with_cards(Game_board_type& g_board, const int seed)
 	std::default_random_engine randomEng(seed);
 	std::uniform_int_distribution<int> distr(0, rows * columns - 1);
 
-	// Wiping out the first random number (that is always the lower bound of the distribution)
+	// Wiping out the first random number 
+	// (that is always the lower bound of the distribution)
 	distr(randomEng);
 
 	// If the drawn cell is already filled with a card, next empty cell will be used.
@@ -255,9 +264,13 @@ std::vector<std::string> split(const std::string& text, const char separator,
 		return std::vector<std::string> {""};
 	}
 
-	std::vector<std::string> parts;
+	//vector to hold the separated parts
+	std::vector<std::string> parts = {};
+	//temp variable to hold the current part
 	std::string part = "";
 
+	//loop through each character looking for occurrences of
+	//the separator character
 	for (auto c : text)
 	{
 		if (c == separator)
@@ -290,26 +303,40 @@ std::vector<std::string> split(const std::string& text, const char separator,
 }
 
 //Reads the specified amount of player names.
-//Returns a vector player names as strings.
+//Returns a vector of player names as strings.
 std::vector<std::string> read_player_names(const unsigned int count)
 {
-	std::string input = "";
-	std::cout << "List " << count << " players: ";
-	std::getline(std::cin, input);
+	//loop until the requested amount of names is given
+	for(;;)
+	{
+		std::string input = "";
+		std::cout << "List " << count << " players: ";
+		std::getline(std::cin, input);
 
-	//assume player names are separated by spaces and
-	//that the correct amount of names was given
-	return split(input, ' ');
+		//assume player names are separated by spaces
+		auto names = split(input, ' ');
+
+		//check that the correct amount of names was given
+		if(names.size() != count)
+		{
+			std::cout << INVALID_AMOUNT_OF_PLAYERS << std::endl;
+		}
+		else
+		{
+			return names;
+		}
+	}
 }
 
 
 //Creates and returns player objects for the inputted names
-std::vector<Player> create_player_objects(const std::vector<std::string>& 
-	player_names)
+std::vector<Player> initialize_players(
+	const std::vector<std::string>&player_names)
 {
-	std::vector<Player> players;
-	for(const auto name : player_names)
+	std::vector<Player> players = {};
+	for (const auto& name : player_names)
 	{
+		//create new player object by name
 		players.push_back(Player(name));
 	}
 
@@ -318,28 +345,30 @@ std::vector<Player> create_player_objects(const std::vector<std::string>&
 
 //Converts each element of a string vector to uint and returns
 //a new uint vector.
-//If an element can't be converted, it's set to zero.
 std::vector<unsigned int> str_vect_to_uint_vect(
 	const std::vector<std::string>& str_vector)
 {
-	std::vector<unsigned int> int_vector;
+	std::vector<unsigned int> uint_vector = {};
 
-	for(const auto str : str_vector)
+	for (const auto& str : str_vector)
 	{
-		int_vector.push_back(stoi_with_check(str));
+		//If an element can't be converted, it's set to zero.
+		uint_vector.push_back(stoi_with_check(str));
 	}
 
-	return int_vector;
+	return uint_vector;
 }
 
-//Checks if the input string consists of two valid game board coordinates.
+//Checks if the input uint vector consists of two valid 
+//game board coordinate pairs.
 //Returns true for valid coordinates and false for invalid.
 bool are_valid_coordinates(const std::vector<unsigned int>& coordinates,
 	const Game_board_type& g_board)
 {
 	//two coordinate pairs can only form from four numbers
 	//and disallow the two coordinate pairs being the same
-	if(coordinates.size() != 4 || 
+	//coordinates are in 'x1 y1 x2 y2' format
+	if (coordinates.size() != 4 ||
 		(coordinates.at(0) == coordinates.at(2) && coordinates.at(1) == coordinates.at(3)))
 	{
 		return false;
@@ -347,29 +376,33 @@ bool are_valid_coordinates(const std::vector<unsigned int>& coordinates,
 
 	const auto rows = g_board.size();
 	const auto columns = g_board.at(0).size();
+
+	//toggle variable for whether the x coordinate is
+	//currently being checked or not
 	auto checking_x_coordinate = true;
 
-	for(const auto& coord : coordinates)
+	//loop through each coordinate
+	for (const auto& coord : coordinates)
 	{
 		//zero indicates an invalid coordinate
-		if(!coord)
+		if (!coord)
 		{
 			return false;
 		}
 
 		//if x outside of game field
-		if(checking_x_coordinate && coord > columns)
+		if (checking_x_coordinate && coord > columns)
 		{
 			return false;
 		}
 
 		//if y outside of game field
-		if(!checking_x_coordinate && coord > rows)
+		if (!checking_x_coordinate && coord > rows)
 		{
 			return false;
 		}
 
-		//coordinates are in form 'x y x y' so can simply toggle between x and y
+		//coordinates are in 'x y x y' format so can simply toggle between x and y
 		checking_x_coordinate = !checking_x_coordinate;
 	}
 
@@ -377,19 +410,25 @@ bool are_valid_coordinates(const std::vector<unsigned int>& coordinates,
 	return true;
 }
 
-//Gets pointers to card objects at the two specified koordinate pairs
+//Gets pointers to two card objects at the two specified coordinate pairs.
 //Returns a vector of card object pointers.
 std::vector<Card*> coords_to_card_ptrs(
 	const std::vector<unsigned int>& coords, Game_board_type& g_board)
 {
 	//vector of Card object pointers
-	std::vector<Card*> cards;
-	for (unsigned int i = 0, j = 1; i < 4; i += 2, j += 2)
+	std::vector<Card*> cards = {};
+
+	//coordinates are in 'x1 y1 x2 y2' format
+	//i starts at index 0 (where x1 is)
+	//j starts at index 1 (where y1 is)
+	//both indexes increase by 2 to get to x2 and y2
+	for (auto i = 0, j = 1; i < 4; i += 2, j += 2)
 	{
+		//subtract one because vector indexing is zero based
 		const auto x = coords.at(i) - 1;
 		const auto y = coords.at(j) - 1;
 
-		//append pointer of card object
+		//append pointer of card object at coords
 		cards.push_back(&g_board.at(y).at(x));
 	}
 
@@ -397,21 +436,25 @@ std::vector<Card*> coords_to_card_ptrs(
 }
 
 
-//Attempts to turn over cards at the specified game field coordinates.
+//Attempts to turn over the specified card pair.
 //Returns true upon success and false upon failure.
 bool try_turn_cards(const std::vector<Card*>& cards,
-	Game_board_type& g_board)
+	const Game_board_type& g_board)
 {
-	for(auto card : cards)
+	for (auto card : cards)
 	{
 		const auto visibility = card->get_visibility();
-		if (visibility == EMPTY || visibility == OPEN)
+		//if the card isn't hidden, it cant be turned over
+		//immediately return fail
+		if (visibility != HIDDEN)
 		{
 			return false;
 		}
 	}
 
 	//only turn cards if both can be turned
+	//only two cards will ever be turned at once in this game
+	//so we can safely index them with 0 and 1
 	cards.at(0)->turn();
 	cards.at(1)->turn();
 	//print the board with the two cards open
@@ -422,7 +465,8 @@ bool try_turn_cards(const std::vector<Card*>& cards,
 	return true;
 }
 
-//Checks if two specified cards are a pair.
+//Checks if two specified cards are a pair and adds them to the player's
+//collection if so
 //Returns true if they're pairs, false if not.
 bool is_pair(const std::vector<Card*>& cards, Player& player)
 {
@@ -440,22 +484,22 @@ bool is_pair(const std::vector<Card*>& cards, Player& player)
 
 //Compares players by their number of card pairs.
 //Used as a custom comparator for std::sort.
-bool compare_players(const Player& player1, const Player& player2)
+bool compare_players_by_score(const Player& player1, const Player& player2)
 {
 	return player1.number_of_pairs() > player2.number_of_pairs();
 }
 
-//Determines the winner of the game.
-//If it's a tie between two or more people, 
-//return all tie players in a vector.
-std::vector<Player> get_winner(std::vector<Player> players)
+//Determines the winner of the game based off the input players
+//If it's a tie between two or more people, return all tied players in a vector.
+//Otherwise just return one player in the vector
+std::vector<Player> get_winners(std::vector<Player> players)
 {
 	//sort by descending
-	std::sort(players.begin(), players.end(), compare_players);
+	std::sort(players.begin(), players.end(), compare_players_by_score);
 
-	std::vector<Player> winners;
+	std::vector<Player> winners = {};
 
-	unsigned int previous_score = 0;
+	auto previous_score = 0u;
 
 	for (const auto& player : players)
 	{
@@ -477,9 +521,11 @@ std::vector<Player> get_winner(std::vector<Player> players)
 	return winners;
 }
 
+//First prints the winner of the game based off the input players, 
+//or if the game was tied between two or more people, print the tie.
 void print_winner(const std::vector<Player>& players)
 {
-	const auto winners = get_winner(players);
+	const auto winners = get_winners(players);
 
 	std::cout << GAME_OVER << std::endl;
 	if (winners.size() == 1)
@@ -493,11 +539,10 @@ void print_winner(const std::vector<Player>& players)
 		std::cout << "Tie of " << winners.size() << " players with "
 			<< winners.at(0).number_of_pairs() << " pairs.";
 	}
-	
 }
 
 //Checks whether the game has ended (if all game field cards are empty)
-//
+//Returns true if game has ended, false if not.
 bool is_game_over(const Game_board_type& g_board)
 {
 	//loop through all cards, if even one is non-empty, the game isn't over
@@ -505,17 +550,20 @@ bool is_game_over(const Game_board_type& g_board)
 	{
 		for (const auto& card : row)
 		{
+			//if even one card isn't empty, the game isn't over
 			if (card.get_visibility() != EMPTY)
 			{
 				return false;
 			}
 		}
 	}
+	//if we got this far, all cards are empty, so the game is over
 	return true;
 }
 
+//Handles the printouts that should occur after coordinates are input
 void print_outs(const Game_board_type& g_board,
-	const std::vector<Player>& players, 
+	const std::vector<Player>& players,
 	const bool found_pair, const bool game_has_ended)
 {
 	//print whether a pair was found or not
@@ -534,75 +582,77 @@ void print_outs(const Game_board_type& g_board,
 	}
 }
 
-//Runs the actual game
-void run_game(const std::vector<std::string>& player_names, 
+//Runs the actual game, needs the names of the players
+//and the game board with initialized cards as arguments
+void run_game(const std::vector<std::string>& player_names,
 	Game_board_type& g_board)
 {
-	auto players = create_player_objects(player_names);
-	auto found_pair = false;
+	auto players = initialize_players(player_names);
+	const auto player_count = players.size();
 
 	print(g_board);
 
-	//loop all players until game ends
-	for(;;)
+	//loop players until game ends
+	for (auto i = 0u; true; i++)
 	{
-		//go through each player
-		for (auto& player : players)
+		//modulo player count to always go back to the index
+		//of the first player 
+		auto& player = players.at(i % player_count);
+		//loop until valid coordinates, where a card can
+		//successful be turned, are given
+		for (;;)
 		{
-			//loop until valid coordinates, where a card can
-			//successful be turned, are given
-			for (;;)
+			std::cout << player.get_name() << ": " << INPUT_CARDS;
+			std::string line = "";
+			std::getline(std::cin, line);
+
+			//assume inputs are split by a space
+			auto inputs = split(line, ' ');
+
+			//give up by entering q
+			if (!inputs.empty() && inputs.at(0) == "q")
 			{
-				std::cout << player.get_name() << ": " << INPUT_CARDS;
-				std::string line = "";
-				std::getline(std::cin, line);
+				std::cout << GIVING_UP << std::endl;
+				return;
+			}
 
-				//assume inputs are split by a space
-				auto inputs = split(line, ' ');
+			//convert string inputs to coordinates
+			const auto coordinates = str_vect_to_uint_vect(inputs);
 
-				//give up by entering q
-				if (!inputs.empty() && inputs.at(0) == "q")
+			if (are_valid_coordinates(coordinates, g_board))
+			{
+				const auto cards = coords_to_card_ptrs(coordinates, g_board);
+				if (try_turn_cards(cards, g_board))
 				{
-					std::cout << GIVING_UP << std::endl;
-					return;
-				}
+					const auto found_pair = is_pair(cards, player);
+					const auto game_has_ended = is_game_over(g_board);
+					print_outs(g_board, players, found_pair, game_has_ended);
 
-				const auto coordinates = str_vect_to_uint_vect(inputs);
-
-				if (are_valid_coordinates(coordinates, g_board))
-				{
-					const auto cards = coords_to_card_ptrs(coordinates, g_board);
-					if(try_turn_cards(cards, g_board))
+					//exit after printouts if game has ended
+					if (game_has_ended)
 					{
-						found_pair = is_pair(cards, player);
-						const auto game_has_ended = is_game_over(g_board);
-						print_outs(g_board, players, found_pair, game_has_ended);
-
-						//exit after printouts if game has ended
-						if(game_has_ended)
-						{
-							return;
-						}
-						//jump to the next player only if a pair wasn't found
-						if(!found_pair)
-						{
-							break;
-						}
+						return;
 					}
-					else
+					//jump to the next player only if a pair wasn't found
+					if (!found_pair)
 					{
-						std::cout << INVALID_CARD << std::endl;
+						break;
 					}
 				}
-				else
+				else //turning card failed
 				{
 					std::cout << INVALID_CARD << std::endl;
 				}
+			}
+			else //invalid coordinates
+			{
+				std::cout << INVALID_CARD << std::endl;
 			}
 		}
 	}
 }
 
+//entry point
 int main()
 {
 	Game_board_type game_board;
