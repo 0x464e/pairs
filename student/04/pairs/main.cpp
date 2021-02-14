@@ -1,42 +1,46 @@
 /* Pairs
- *
- * Desc:
- *  This program generates a pairs (memory) game. The game has a variant
- * number of cards and players. At the beginning, the program also asks for a
- * seed value, since the cards will be set randomly in the game board.
- *  On each round, the player in turn gives the coordinates of two cards
- * (totally four numbers). After that the given cards will be turned as
- * visible and told if they are pairs or not. If they are pairs, they are
- * removed from the game board, the score of the player is increased, and
- * a new turn is given for the player. If the cards are not pairs, they
- * will be  turned hidden again, and the next player will be in turn.
- *  The program checks if the user-given coordinates are legal. The cards
- * determined by the coordinates must be found in the game board.
- *  After each change, the game board is printed again. The cards are
- * described as letters, starting from A and lasting so far as there are
- * cards. In printing the game board, a visible card is shown as its letter,
- * a hidden one as the number sign (#), and a removed one as a dot.
- *  Game will end when all pairs have been found, and the game board is
- * empty. The program tells who has/have won, i.e. collected most pairs.
- *
- * COMP.CS.110 K2021
- *
- * Program author
- * Name: 
- * Student number: 
- * UserID: 
- * E-Mail: 
- *
- * Notes about the program and it's implementation:
- * Tried to practice good usage of constants and references.
- * In parameters references are used on types with sizeof() > sizeof(ptr).
- * Sudden usage of pointers for Card objects may seem like a weird design
- * choice, but I wanted to get some practice with pointers as well.
- * 
- * run_game function may have grown a bit long, but breaking it up to even
- * more functions would've made it less clear in my opinion. Anyway, its
- * length mostly comes from spacing and mandatory braces.
- * */
+*
+* Desc:
+* Pairs memory game. This program generates a memory game, where a desired
+* amount of players flip over a desired amount randomized cards. The
+* card placements are randomized based off a user input seed number.
+*
+* Each round each player gives gameboard coordinates to flip over two cards.
+* The cards are flipped over for everyone to see, and they are a pair, they
+* are removed from the gameboard and the player scores one pair and gets to
+* continue his turn. If the cards weren't a pair, they’re turned backside up
+* again, on the same spot and players should try to remember which cards were
+* where. The turn passes over to the next player.
+*
+* The visible side of cards is represented as letters starting from 'A', and
+* the backside of the cards is represented by a '#'. Removed cards are
+* represented as a '.'
+*
+* The games ends when the gameboard is empty of cards. The program prints
+* out the winner and their score (amount of card pairs collected), or in case
+* of a tie, it prints out how many players were tied between each other and
+* with what score. A player can also forfeit the game, in which case the game
+* ends immediately.
+*
+*
+* COMP.CS.110 K2021
+*
+* Program author
+* Name: 
+* Student number: 
+* UserID: 
+* E-Mail: 
+*
+* Notes about the program and it's implementation:
+* Tried to practice good usage of constants and references.
+* In parameters references are used on types with sizeof() > sizeof(ptr).
+* Sudden usage of pointers for Card objects may seem like a weird design
+* choice, but I wanted to get some practice with pointers as well.
+* 
+* run_game function may have grown a bit long, but breaking it up to even
+* more functions would've made it less clear in my opinion. Anyway, its
+* length mostly comes from spacing and mandatory braces.
+* */
 
 #include "player.hh"
 #include "card.hh"
@@ -93,12 +97,12 @@ void init_with_empties(Game_board_type& g_board, const unsigned int rows,
 {
 	g_board.clear();
 	Game_row_type row;
-	for (unsigned int i = 0; i < columns; ++i)
+	for (auto i = 0u; i < columns; ++i)
 	{
 		const Card card;
 		row.push_back(card);
 	}
-	for (unsigned int i = 0; i < rows; ++i)
+	for (auto i = 0u; i < rows; ++i)
 	{
 		g_board.push_back(row);
 	}
@@ -124,7 +128,7 @@ unsigned int next_free(Game_board_type& g_board, const unsigned int start)
 	}
 
 	// Continuing from the beginning
-	for (unsigned int i = 0; i < start; ++i)
+	for (auto i = 0u; i < start; ++i)
 	{
 		if (g_board.at(i / columns).at(i % columns).get_visibility() == EMPTY)
 		{
@@ -158,9 +162,9 @@ void init_with_cards(Game_board_type& g_board, const int seed)
 	for (unsigned int i = 0, c = 'A'; i < rows * columns - 1; i += 2, ++c)
 	{
 		// Adding two identical cards (pairs) in the game board
-		for (unsigned int j = 0; j < 2; ++j)
+		for (auto j = 0u; j < 2; ++j)
 		{
-			unsigned int cell = distr(randomEng);
+			auto cell = distr(randomEng);
 			cell = next_free(g_board, cell);
 			g_board.at(cell / columns).at(cell % columns).set_letter(c);
 			g_board.at(cell / columns).at(cell % columns).set_visibility(HIDDEN);
@@ -173,7 +177,7 @@ void init_with_cards(Game_board_type& g_board, const int seed)
 // (Called only by the function print.)
 void print_line_with_char(const char c, const unsigned int line_length)
 {
-	for (unsigned int i = 0; i < line_length * 2 + 7; ++i)
+	for (auto i = 0u; i < line_length * 2 + 7; ++i)
 	{
 		std::cout << c;
 	}
@@ -189,16 +193,16 @@ void print(const Game_board_type& g_board)
 
 	print_line_with_char('=', columns);
 	std::cout << "|   | ";
-	for (unsigned int i = 0; i < columns; ++i)
+	for (auto i = 0u; i < columns; ++i)
 	{
 		std::cout << i + 1 << " ";
 	}
 	std::cout << "|" << std::endl;
 	print_line_with_char('-', columns);
-	for (unsigned int i = 0; i < rows; ++i)
+	for (auto i = 0u; i < rows; ++i)
 	{
 		std::cout << "| " << i + 1 << " | ";
-		for (unsigned int j = 0; j < columns; ++j)
+		for (auto j = 0u; j < columns; ++j)
 		{
 			g_board.at(i).at(j).print();
 			std::cout << " ";
@@ -213,7 +217,7 @@ void print(const Game_board_type& g_board)
 void ask_product_and_calculate_factors(unsigned int& smaller_factor,
 	unsigned int& bigger_factor)
 {
-	unsigned int product = 0;
+	auto product = 0u;
 	while (!(product > 0 && product % 2 == 0))
 	{
 		std::cout << INPUT_AMOUNT_OF_CARDS;
@@ -222,7 +226,7 @@ void ask_product_and_calculate_factors(unsigned int& smaller_factor,
 		product = stoi_with_check(product_str);
 	}
 
-	for (unsigned int i = 1; i * i <= product; ++i)
+	for (auto i = 1u; i * i <= product; ++i)
 	{
 		if (product % i == 0)
 		{
@@ -237,7 +241,7 @@ void ask_product_and_calculate_factors(unsigned int& smaller_factor,
 //Returns a valid player count as an uint.
 unsigned int ask_number_of_players()
 {
-	unsigned int number_of_players = 0;
+	auto number_of_players = 0u;
 
 	//loop until an integer larger than zero was input
 	for (;;)
@@ -337,7 +341,7 @@ std::vector<Player> initialize_players(
 	for (const auto& name : player_names)
 	{
 		//create new player object by name
-		players.push_back(Player(name));
+		players.emplace_back(name);
 	}
 
 	return players;
@@ -657,15 +661,15 @@ int main()
 {
 	Game_board_type game_board;
 
-	unsigned int factor1 = 1;
-	unsigned int factor2 = 1;
+	auto factor1 = 1u;
+	auto factor2 = 1u;
 	ask_product_and_calculate_factors(factor1, factor2);
 	init_with_empties(game_board, factor1, factor2);
 
 	std::string seed_str = "";
 	std::cout << INPUT_SEED;
 	std::getline(std::cin, seed_str);
-	const int seed = stoi_with_check(seed_str);
+	const auto seed = stoi_with_check(seed_str);
 	init_with_cards(game_board, seed);
 
 	const auto number_of_players = ask_number_of_players();
