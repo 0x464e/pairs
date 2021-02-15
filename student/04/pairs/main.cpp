@@ -259,7 +259,7 @@ unsigned int ask_number_of_players()
 }
 
 //Splits text by the specified separator, optionally includes empty parts.
-//Returns a vector of the split parts.
+//Returns a string vector of the split parts.
 std::vector<std::string> split(const std::string& text, const char separator,
 	const bool include_empty = false)
 {
@@ -332,10 +332,10 @@ std::vector<std::string> read_player_names(const unsigned int count)
 	}
 }
 
-
-//Creates and returns player objects for the inputted names
+//Creates player objects for the inputted names, 
+//returns a vector of player names.
 std::vector<Player> initialize_players(
-	const std::vector<std::string>&player_names)
+	const std::vector<std::string>& player_names)
 {
 	std::vector<Player> players = {};
 	for (const auto& name : player_names)
@@ -369,7 +369,7 @@ std::vector<unsigned int> str_vect_to_uint_vect(
 bool are_valid_coordinates(const std::vector<unsigned int>& coordinates,
 	const Game_board_type& g_board)
 {
-	//two coordinate pairs can only form from four numbers
+	//two coordinate pairs can only be formed from four numbers
 	//and disallow the two coordinate pairs being the same
 	//coordinates are in 'x1 y1 x2 y2' format
 	if (coordinates.size() != 4 ||
@@ -470,7 +470,7 @@ bool try_turn_cards(const std::vector<Card*>& cards,
 }
 
 //Checks if two specified cards are a pair and adds them to the player's
-//collection if so
+//collection if so.
 //Returns true if they're pairs, false if not.
 bool is_pair(const std::vector<Card*>& cards, Player& player)
 {
@@ -525,13 +525,14 @@ std::vector<Player> get_winners(std::vector<Player> players)
 	return winners;
 }
 
-//First prints the winner of the game based off the input players, 
+//Prints the winner of the game based off the input players, 
 //or if the game was tied between two or more people, print the tie.
 void print_winner(const std::vector<Player>& players)
 {
 	const auto winners = get_winners(players);
 
 	std::cout << GAME_OVER << std::endl;
+	//no tie if the input vector has only one player
 	if (winners.size() == 1)
 	{
 		const auto& winner = winners.at(0);
@@ -554,7 +555,6 @@ bool is_game_over(const Game_board_type& g_board)
 	{
 		for (const auto& card : row)
 		{
-			//if even one card isn't empty, the game isn't over
 			if (card.get_visibility() != EMPTY)
 			{
 				return false;
@@ -566,7 +566,7 @@ bool is_game_over(const Game_board_type& g_board)
 }
 
 //Handles the printouts that should occur after coordinates are input
-void print_outs(const Game_board_type& g_board,
+void printouts(const Game_board_type& g_board,
 	const std::vector<Player>& players,
 	const bool found_pair, const bool game_has_ended)
 {
@@ -606,6 +606,7 @@ void run_game(const std::vector<std::string>& player_names,
 		//successful be turned, are given
 		for (;;)
 		{
+			//printout to indicate the player's turn begins
 			std::cout << player.get_name() << ": " << INPUT_CARDS;
 			std::string line = "";
 			std::getline(std::cin, line);
@@ -613,7 +614,7 @@ void run_game(const std::vector<std::string>& player_names,
 			//assume inputs are split by a space
 			auto inputs = split(line, ' ');
 
-			//give up by entering q
+			//give up by inputting q
 			if (!inputs.empty() && inputs.at(0) == "q")
 			{
 				std::cout << GIVING_UP << std::endl;
@@ -630,7 +631,7 @@ void run_game(const std::vector<std::string>& player_names,
 				{
 					const auto found_pair = is_pair(cards, player);
 					const auto game_has_ended = is_game_over(g_board);
-					print_outs(g_board, players, found_pair, game_has_ended);
+					printouts(g_board, players, found_pair, game_has_ended);
 
 					//exit after printouts if game has ended
 					if (game_has_ended)
