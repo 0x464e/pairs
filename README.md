@@ -4,6 +4,8 @@ The first C++ project for my university's C++ programming course.
 
 This game is played only in the command line and isn't too interesting. The GUI version of this game was done as the final project of this C++ programming course. You can find the GUI version [here](https://github.com/0x464e/pairs_gui).
 
+Some commits and other information about the repository's history may appear odd, this is because the commits were originally made to my university's private GitLab from my university account & email. Private/sensitive information had to removed from the commits.
+
 ---
 
 This program generates a memory game, where a desired amount of players flip over a desired amount randomized cards. The card placements are randomized based off a user input seed number.
