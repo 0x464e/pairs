@@ -1,13 +1,3 @@
-/*
- * COMP.CS.110 K2021
- *
- * Program author
- * Name: 
- * Student number: 
- * UserID: 
- * E-Mail: 
- */
-
 #include "player.hh"
 #include <iostream>
 

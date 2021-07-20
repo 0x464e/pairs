@@ -1,14 +1,6 @@
 /* Class: Card
  * -----------
  * Represents a single card in pairs (memory) game.
- *
- * COMP.CS.110 K2021
- * 
- * Program author
- * Name: 
- * Student number: 
- * UserID: 
- * E-Mail: 
  * */
 
 #ifndef CARD_HH

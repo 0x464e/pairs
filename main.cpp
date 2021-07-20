@@ -22,15 +22,6 @@
 * with what score. A player can also forfeit the game, in which case the game
 * ends immediately.
 *
-*
-* COMP.CS.110 K2021
-*
-* Program author
-* Name: 
-* Student number: 
-* UserID: 
-* E-Mail: 
-*
 * Notes about the program and it's implementation:
 * Tried to practice good usage of constants and references.
 * In parameters references are used on types with sizeof() > sizeof(ptr).

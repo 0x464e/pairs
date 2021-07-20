@@ -1,14 +1,6 @@
 /* Class: Player
  * -------------
  * Represents a single player in pairs (memory) game.
- *
- * COMP.CS.110 K2021
- *
- * Program author
- * Name: 
- * Student number: 
- * UserID: 
- * E-Mail: 
  * */
 
 #ifndef PLAYER_HH
